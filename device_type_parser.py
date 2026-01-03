@@ -2,6 +2,7 @@ from netmiko import ConnectHandler
 from netmiko.ssh_autodetect import SSHDetect
 from netmiko.exceptions import NetmikoTimeoutException, NetmikoAuthenticationException
 from paramiko.ssh_exception import SSHException
+from commutator_handler import Commutator, Vendor
 
 
 def detect_device_type(host, username, use_keys, password, key_file,
@@ -128,7 +129,13 @@ def main():
     best_match = detect_device_type(host, username, use_keys, password,
                                     key_file, allow_agent, port=22)
     print(best_match)
-
+    com = Commutator()
+    if type(best_match) is Vendor:
+        com.vendor = best_match
+        com.results['is_vendor'] = True
+    else:
+        com.vendor = None
+        com.results['is_vendor'] = False
 
 if __name__ == "__main__":
     main()
