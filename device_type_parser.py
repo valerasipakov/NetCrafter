@@ -82,32 +82,18 @@ def detect_device_type(host, username, use_keys, password, key_file,
     return None
 
 
-def connect_with_detected_type(device_type, host, username, use_keys, password, key_file,
-                               allow_agent, port=22):
-    '''
-    Можно использовать, если понадобится,
-        пока не используется.
-    '''
-
-    params = {
-        "device_type": device_type,
-        "host": host,
-        "username": username,
-        "port": port,
-        "use_keys": use_keys,
-        "key_file": key_file,
-        "allow_agent": allow_agent,
-        "password": password,
-    }
-    conn = ConnectHandler(**params)
-    return conn
-
-
-def main():
+def add_vendor():
+    """
+    Вызывает функцию detect_device_type и передаёт в неё необходимые параметры.
+    Args: None
+    Returns: excepion or None
+    """
+    password = ''
     devices = parse_devices_from_yaml("devices.yaml")
     for com in devices:
+        password = input("Введите пароль от устройства", com.hosname)
         best_match = detect_device_type(
-            com.hostname, com.username, False, 'admin', None, False)
+            com.hostname, com.username, False, password, None, False)
         if best_match:
             com.vendor = best_match
             com.results['is_vendor'] = True
@@ -115,8 +101,7 @@ def main():
         else:
             com.vendor = None
             com.results['is_vendor'] = False
-    print_devices_info(devices)
 
 
 if __name__ == "__main__":
-    main()
+    add_vendor()
