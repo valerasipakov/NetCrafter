@@ -3,6 +3,7 @@ from netmiko.ssh_autodetect import SSHDetect
 from netmiko.exceptions import NetmikoTimeoutException, NetmikoAuthenticationException
 from paramiko.ssh_exception import SSHException
 from commutator_handler import Commutator, Vendor
+from parsing_from_yaml import parse_devices_from_yaml, print_devices_info
 
 
 def detect_device_type(host, username, use_keys, password, key_file,
@@ -103,39 +104,19 @@ def connect_with_detected_type(device_type, host, username, use_keys, password, 
 
 
 def main():
-    # Ввод данных.
-    print("Введите имя хоста:")
-    host = input()
-    print("Введите имя пользователя:")
-    username = input()
-    print("Введите пароль, если есть:")
-    password = input()
-    if password == "":
-        password = None
-    print("Использовать ssh агент? y/n")
-    ans = input().lower
-    allow_agent = False
-    use_keys = False
-    key_file = None
-    if ans == 'y':
-        allow_agent = True
-    else:
-        print("Использовать ssh ключи? y/n")
-        ans = input().lower()
-        if ans == 'y':
-            use_keys = True
-            print('Введите путь к файлу с ключами.')
-            key_file = input()
-    best_match = detect_device_type(host, username, use_keys, password,
-                                    key_file, allow_agent, port=22)
-    print(best_match)
-    com = Commutator()
-    if type(best_match) is Vendor:
-        com.vendor = best_match
-        com.results['is_vendor'] = True
-    else:
-        com.vendor = None
-        com.results['is_vendor'] = False
+    devices = parse_devices_from_yaml("devices.yaml")
+    for com in devices:
+        best_match = detect_device_type(
+            com.hostname, com.username, False, 'admin', None, False)
+        if best_match:
+            com.vendor = best_match
+            com.results['is_vendor'] = True
+            print(best_match)  # Проверка, что вендор действительно определён.
+        else:
+            com.vendor = None
+            com.results['is_vendor'] = False
+    print_devices_info(devices)
+
 
 if __name__ == "__main__":
     main()

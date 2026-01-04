@@ -3,7 +3,7 @@ from typing import List, Literal, Dict, Any
 from netmiko import ConnectHandler   # pip install netmiko
 
 
-Vendor = Literal["cisco_ios", "juniper_junos", "arista_eos", "nokia_srl", "mikrotik_routeros", "hp_procurve"]  # и т.п. [web:7]
+Vendor = Literal["None", "cisco_ios", "juniper_junos", "arista_eos", "nokia_srl", "mikrotik_routeros", "hp_procurve"]  # и т.п. [web:7]
 
 
 @dataclass
@@ -11,10 +11,10 @@ class Commutator:
     ip: str
     hostname: str
     username: str
-    password: str
-    vendor: Vendor          # тип/вендор для Netmiko [web:7]
     commands: List[str]     # список show / config команд
-    system: str             # например "ios", "nxos", "junos" и т.п.
+    password_hash: str
+    password: str = ''
+    vendor: Vendor = "None"          # тип/вендор для Netmiko [web:7]
     status: bool = False    # успешно ли выполнились команды
     results: Dict[str, Any] = field(default_factory=dict)
 
@@ -36,19 +36,3 @@ class Commutator:
         except Exception as exc:
             self.status = False
             self.results["error"] = str(exc)
-
-
-sw1 = Commutator(
-    ip="192.168.1.10",
-    hostname="sw-core-1",
-    username="admin",
-    password="secret",
-    vendor="cisco_ios",
-    commands=["show version", "show ip interface brief"],
-    system="ios",
-)
-
-sw1.run_commands()
-print(sw1.status)                  # True/False
-
-print(f"Использованная команда: {sw1.commands[0]}")

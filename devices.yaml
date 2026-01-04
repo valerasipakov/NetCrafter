@@ -1,0 +1,14 @@
+devices:
+  - ip: 172.20.20.3
+    hostname: clab-test_lab-srl
+    username: admin
+    password_hash: "098d659361a5c98b61e12973ea3bb966a8b0920f2fcf9d7a5e2459cd83505ef9"
+    commands:
+      - show version
+      
+  - ip: 172.20.20.2
+    hostname: clab-test_lab-ceos
+    username: admin
+    password_hash: "8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918"
+    commands:
+      - show version
